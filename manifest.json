@@ -1,12 +1,12 @@
 {
-  "name": "Aplikasiku",
-  "short_name": "Aplikasiku",
+  "name": "A-FINANCE",
+  "short_name": "A-FINANCE",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#0b6b52",
+  "background_color": "#f1f5fb",
+  "theme_color": "#1d4ed8",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
