@@ -189,6 +189,29 @@ svg.ch rect:nth-of-type(2n){animation-delay:.05s}svg.ch rect:nth-of-type(3n){ani
 .dtl{margin:6px 0 10px;font-weight:700;font-size:14px}
 .gh{display:flex;align-items:center;gap:10px}.gh b{flex:1}
 .gsub{display:flex;justify-content:space-between;gap:8px;padding:8px 0 8px 18px;font-size:13px;border-top:1px dashed var(--bd);cursor:pointer}
+
+/* ===== v7: rapi & simetris HP/laptop ===== */
+.card>b:first-child{font-size:15px}
+.er:empty{display:none}
+.md h3{font-size:18px}
+@media(min-width:801px){.ov{align-items:center}.md{max-width:520px}}
+.ff{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 10px}
+.ff>*{grid-column:1/-1;min-width:0}.ff>.hf{grid-column:auto}
+.ff input,.ff select{height:46px;margin:4px 0 8px;padding:0 12px}
+.ff textarea{margin:4px 0 8px}
+input[type=date]{min-height:46px;-webkit-appearance:none;appearance:none;text-align:left}
+.dpk{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;overflow:visible}
+.dc{min-width:0;padding:8px 0}.dc.td:not(.on){border-color:#6366f1}
+.dtl{text-align:center;padding:8px;border-radius:12px;background:var(--s2);margin:8px 0 12px}
+.qc{display:flex;gap:6px;flex-wrap:wrap}.qc .b2{flex:1 1 0;min-width:fit-content}
+.qn{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}.qn .b2{padding:9px 0;font-size:12px;min-width:0}
+.rec{margin:0 0 10px}
+.rec .qc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.rec .qc .b2{min-width:0;width:100%;padding:9px 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.rec .qc .b2.on{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;border-color:transparent}
+.b2.sq{flex:none;width:40px;padding:8px 0;text-align:center}
+.chips{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
+@media(max-width:800px){.g{grid-template-columns:repeat(2,minmax(0,1fr))}.g>.c:last-child:nth-child(odd){grid-column:1/-1}.sg{grid-template-columns:repeat(3,minmax(0,1fr))}.sg>.c:last-child:nth-child(odd){grid-column:auto}}
 </style></head><body>
 <div id="app"><aside id="side"></aside><main><div id="top"></div><div id="view"><div class="ld">Memuat data…</div></div></main></div>
 <nav id="bot"></nav><button id="fab" class="fabf" onclick="quick()" aria-label="Catat transaksi cepat"></button><div id="modal"></div><div id="toast"></div><div id="sy"></div>
@@ -234,12 +257,12 @@ function doit(a,p,b,onerr){doit2(a,p,b,onerr)}
 function ask(msg,yes){$('modal').innerHTML=`<div class="ov"><div class="md"><p>${msg}</p><div class="row"><button class="b2" onclick="closeM()">Batal</button><button class="b" id="yy">Lanjutkan</button></div></div></div>`;$('yy').onclick=()=>{closeM();yes()}}
 function form(title,fs,submit,note,lbl){
  const fld=f=>f.t=='raw'?f.h
-  :`<label>${f.l}${f.t=='select'?`<select id="f_${f.k}">${f.o.map(o=>`<option ${o==f.v?'selected':''}>${esc(o)}</option>`).join('')}</select>`
+  :`<label class="${f.half?'hf':''}">${f.l}${f.t=='select'?`<select id="f_${f.k}">${f.o.map(o=>`<option ${o==f.v?'selected':''}>${esc(o)}</option>`).join('')}</select>`
   :f.t=='number'?`<input id="f_${f.k}" type="text" inputmode="numeric" autocomplete="off" data-m="1" placeholder="0" value="${mf(f.v)}">`
   :f.t=='combo'?`<input id="f_${f.k}" list="dl_${f.k}" autocomplete="off" placeholder="${esc(f.ph||'')}" value="${esc(f.v==null?'':f.v)}"><datalist id="dl_${f.k}">${f.o.map(o=>`<option value="${esc(o)}">`).join('')}</datalist>`
   :f.t=='textarea'?`<textarea id="f_${f.k}" rows="3" maxlength="300" placeholder="${esc(f.ph||'')}">${esc(f.v==null?'':f.v)}</textarea>`
   :`<input id="f_${f.k}" type="${f.t||'text'}" value="${esc(f.v==null?'':f.v)}">`}<small class="er" id="e_${f.k}"></small></label>`;
- $('modal').innerHTML=`<div class="ov"><div class="md"><h3 style="margin-top:0">${title}</h3>${note||''}${fs.map(fld).join('')}<div class="row"><button class="b2" onclick="closeM()">Batal</button><button class="b" id="fs">${lbl||'Simpan'}</button></div></div></div>`;
+ $('modal').innerHTML=`<div class="ov"><div class="md"><h3 style="margin-top:0">${title}</h3>${note||''}<div class="ff">${fs.map(fld).join('')}</div><div class="row"><button class="b2" onclick="closeM()">Batal</button><button class="b" id="fs">${lbl||'Simpan'}</button></div></div></div>`;
  $('fs').onclick=()=>{document.querySelectorAll('.er').forEach(e=>e.textContent='');const v={};fs.filter(f=>f.t!='raw').forEach(f=>{const x=$('f_'+f.k).value;v[f.k]=f.t=='number'?un(x):x});submit(v,$('fs'))}}
 const fe=(k,m)=>{const e=$('e_'+k);if(e){e.textContent=m;const i=$('f_'+k);if(i)i.focus()}else toast(m,1)};
 const num=(v,m)=>{if(!(+v>0)){fe('nominal',(m||'Nominal')+' harus lebih dari 0');return false}return true};
@@ -315,9 +338,9 @@ const KW=[[/bensin|pertalite|pertamax|\bbbm\b/i,'Bensin'],[/parkir/i,'Parkir'],[
 const guessNom=s=>{let t=0;String(s).replace(/(\d[\d.,]*)\s*(rb|ribu|k|jt|juta)?(?![a-z0-9])/gi,(m,n,u)=>{let v;if(u)v=parseFloat(n.replace(',','.'))*(/^(jt|juta)$/i.test(u)?1e6:1e3);else v=+n.replace(/[.,]/g,'');if(v>=500)t+=v;return m});return Math.round(t)};
 const HR=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 const fmtLong=s=>s?pd(s).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
-function dateRaw(){let h='';for(let i=6;i>=0;i--){const d=add(D.today,-i);h+=`<button type="button" class="dc" data-d="${d}" onclick="setDate('${d}')"><small>${i==0?'Hari ini':i==1?'Kemarin':HR[pd(d).getDay()]}</small><b>${+d.slice(8)}</b></button>`}
+function dateRaw(){let h='';for(let i=6;i>=0;i--){const d=add(D.today,-i);h+=`<button type="button" class="dc${i==0?' td':''}" data-d="${d}" onclick="setDate('${d}')"><small>${HR[pd(d).getDay()]}</small><b>${+d.slice(8)}</b></button>`}
  return `<div class="dwrap"><label>Tanggal</label><div class="dpk">${h}</div><div id="dtl" class="dtl"></div></div>`}
-function dateSync(){const i=$('f_tanggal');if(!i)return;const v=i.value;document.querySelectorAll('.dc').forEach(b=>b.classList.toggle('on',b.dataset.d==v));const l=$('dtl');if(l)l.textContent=v?'📅 '+fmtLong(v):'Pilih tanggal'}
+function dateSync(){const i=$('f_tanggal');if(!i)return;const v=i.value;document.querySelectorAll('.dc').forEach(b=>b.classList.toggle('on',b.dataset.d==v));const l=$('dtl');if(l)l.textContent=v?'📅 '+fmtLong(v)+(v==D.today?' · Hari ini':v==add(D.today,-1)?' · Kemarin':''):'Pilih tanggal'}
 const setDate=d=>{const i=$('f_tanggal');if(i){i.value=d;dateSync()}};
 function dateWire(){const i=$('f_tanggal');if(!i)return;i.addEventListener('input',dateSync);dateSync();const p=document.querySelector('.dpk');if(p)p.scrollLeft=p.scrollWidth}
 /* kelompok pengeluaran (tersimpan di HP/browser ini) */
@@ -327,6 +350,13 @@ const saveGU=()=>{try{localStorage.setItem('af_grp',JSON.stringify(GU))}catch(e)
 const has=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
 const grp=n=>(has(GU,n)&&GU[n])||(has(GDEF,n)&&GDEF[n])||'Belum dikelompokkan';
 const allGroups=()=>[...new Set(Object.values(GDEF).concat(Object.values(GU)))].sort();
+const REK=[['Makan siang','Makan & Minum'],['Sarapan','Makan & Minum'],['Minuman','Makan & Minum'],['Camilan','Makan & Minum'],['Kopi','Makan & Minum'],['Bensin','Motor & Transportasi'],['Parkir','Motor & Transportasi'],['Servis motor','Motor & Transportasi'],['Sparepart motor','Motor & Transportasi'],['Ojek & Angkot','Motor & Transportasi'],['Kuota Internet','Pulsa & Internet'],['Pulsa','Pulsa & Internet'],['Futsal','Hiburan & Olahraga'],['Nonton & Game','Hiburan & Olahraga'],['Top up game','Hiburan & Olahraga'],['Alat tulis','Sekolah'],['Fotokopi & Print','Sekolah'],['Iuran sekolah','Sekolah'],['Pakaian','Pribadi'],['Perawatan diri','Pribadi'],['Sedekah & Hadiah','Sosial'],['Pengeluaran darurat','Darurat']];
+REK.forEach(r=>{if(!has(GDEF,r[0]))GDEF[r[0]]=r[1]});
+function recCats(){const c={};act().filter(t=>t.jenis=='Pengeluaran'&&!UT.test(t.kategori)&&t.kategori!='Uang jajan mingguan').forEach(t=>c[t.kategori]=(c[t.kategori]||0)+1);
+ const top=Object.entries(c).sort((a,b)=>b[1]-a[1]).map(x=>x[0]).slice(0,6);REK.forEach(r=>{if(top.length<9&&top.indexOf(r[0])<0)top.push(r[0])});return top}
+const recHtml=()=>`<div class="rec"><small class="sm">Rekomendasi · ketuk untuk memilih</small><div class="qc" style="margin-top:6px">${recCats().map(n=>`<button type="button" class="b2" data-n="${esc(n)}" onclick="pickCat(this)">${esc(n)}</button>`).join('')}</div></div>`;
+function pickCat(el){const c=$('f_kategori');if(!c)return;c.value=el.dataset.n;c.dispatchEvent(new Event('input'));document.querySelectorAll('.rec .b2').forEach(b=>b.classList.toggle('on',b===el))}
+function addRek(el){doit('katAdd',{jenis:'Pengeluaran',nama:el.dataset.n},el)}
 const tkG=g=>/Motor|Pulsa|Sekolah/.test(g)?'Wajib':/Darurat/.test(g)?'Darurat':/Hiburan/.test(g)?'Keinginan':'Penting';
 function grpForm(n){const g0=grp(n);form('Pindahkan "'+esc(n)+'"',[{k:'g',l:'Kelompok',t:'combo',o:allGroups(),v:g0=='Belum dikelompokkan'?'':g0,ph:'mis. Makan & Minum'}],(v,b)=>{const g=(v.g||'').trim().slice(0,30);if(!g)return fe('g','Isi nama kelompok');GU[n]=g;saveGU();closeM();toast('Dipindah ke '+g+' ✓');render()},'<p class="sm">Semua transaksi kategori ini ikut pindah kelompok. Pengelompokan tersimpan di HP/browser ini.</p>')}
 function kelompok(){const k=F.kp||'bulan',r=rng(k),G={};
@@ -338,13 +368,13 @@ function kemana(){const r=rng('bulan'),G={};outv(r).forEach(t=>{const g=grp(t.ka
  const L=Object.entries(G).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]),T0=L.reduce((s,x)=>s+x[1],0);if(!L.length)return '';
  return `<div class="card"><div class="bar" style="margin:0 0 6px"><b>Uang bulan ini ke mana?</b><button class="b2" onclick="T.an='kelompok';go('an')">Rincian</button></div>${L.slice(0,4).map(x=>`<div class="lr" style="cursor:default"><i class="dot" style="background:${cc(x[0])}"></i><span style="flex:1">${esc(x[0])}</span><b>${rp(x[1])}</b><span class="sm" style="width:38px;text-align:right">${Math.round(x[1]/T0*100)}%</span></div>`).join('')}</div>`}
 function txForm(j,pre){pre=pre||{};const id=uid('TX'),inn=j=='in',jn=inn?'Pemasukan':'Pengeluaran',cats=D.kat.filter(k=>k.aktif!='Tidak'&&k.jenis==jn&&k.nama!='Uang jajan mingguan').map(k=>k.nama),g0=pre.kategori&&!inn?grp(pre.kategori):'';
- const chips='<div class="qc">'+[2000,5000,10000,20000,50000].map(v=>`<button type="button" class="b2" onclick="setNom(${v})">${rp(v)}</button>`).join('')+'</div>';
+ const chips='<div class="qc qn">'+[2000,5000,10000,20000,50000].map(v=>`<button type="button" class="b2" onclick="setNom(${v})">${v/1000}rb</button>`).join('')+'</div>';
  form(inn?'Catat Pemasukan':'Catat Pengeluaran',[].concat(
   [{k:'ket',l:inn?'Dari siapa / untuk apa?':'Beli apa? (ketik bebas)',t:'textarea',v:pre.ket,ph:inn?'mis. uang jajan dari kakak':'mis. nasi goreng 15000, es teh 5000, bensin 2 liter'},
    {k:'nominal',l:'Total (Rp)',t:'number',v:pre.nominal},{t:'raw',h:chips},
-   {k:'kategori',l:'Kategori (ketik bebas atau pilih)',t:'combo',o:cats,v:pre.kategori,ph:inn?'mis. Uang jajan':'mis. Es teh, Bensin, Buku tulis'}],
+   {k:'kategori',l:'Kategori (ketik bebas atau pilih)',t:'combo',o:cats,v:pre.kategori,ph:inn?'mis. Uang jajan':'mis. Es teh, Bensin, Buku tulis'},{t:'raw',h:inn?'':recHtml()}],
   inn?[{k:'jenis',l:'Jenis',t:'select',o:['Pemasukan','Pengembalian']}]:[{k:'kelompok',l:'Masuk kelompok',t:'combo',o:allGroups(),v:g0=='Belum dikelompokkan'?'':g0,ph:'mis. Makan & Minum'}],
-  [{k:'sumber',l:inn?'Masuk ke saldo':'Bayar pakai',t:'select',o:D.src,v:pre.sumber},{t:'raw',h:dateRaw()},{k:'tanggal',l:'Atau pilih tanggal lain',t:'date',v:pre.tanggal||D.today}],
+  [{t:'raw',h:dateRaw()},{k:'sumber',l:inn?'Masuk ke saldo':'Bayar pakai',t:'select',o:D.src,v:pre.sumber,half:1},{k:'tanggal',l:'Tanggal lain',t:'date',v:pre.tanggal||D.today,half:1}],
   D.cfg.opsional=='1'?[{k:'tempat',l:'Tempat atau penjual (opsional)',v:pre.tempat},{k:'ref',l:'No. referensi (opsional)',v:pre.ref}]:[]),
  (v,b)=>{if(!num(v.nominal))return;if(!v.tanggal)return fe('tanggal','Pilih tanggal');
   const kn=(v.kategori||'').trim().replace(/\s+/g,' ').slice(0,40);if(!kn)return fe('kategori','Isi kategori (ketik bebas)');
@@ -362,7 +392,7 @@ function txForm(j,pre){pre=pre||{};const id=uid('TX'),inn=j=='in',jn=inn?'Pemasu
   const gn=guessNom(k.value);if(!n.value||n.dataset.auto=='1'){n.value=gn?mf(gn):'';n.dataset.auto=gn?'1':''}});
  dateWire();if(!pre.ket)setTimeout(()=>k.focus(),60)}
 function tfForm(pre){pre=pre||{};const id=uid('TF');
- form('Transfer Antar Saldo',[{k:'dari',l:'Dari',t:'select',o:D.src,v:pre.dari||D.src[0]},{k:'ke',l:'Ke',t:'select',o:D.src,v:pre.ke||D.src[1]},{t:'raw',h:dateRaw()},{k:'tanggal',l:'Atau pilih tanggal lain',t:'date',v:pre.tanggal||D.today},{k:'nominal',l:'Nominal (Rp)',t:'number'},{k:'ket',l:'Keterangan'}],
+ form('Transfer Antar Saldo',[{k:'dari',l:'Dari',t:'select',o:D.src,v:pre.dari||D.src[0],half:1},{k:'ke',l:'Ke',t:'select',o:D.src,v:pre.ke||D.src[1],half:1},{t:'raw',h:dateRaw()},{k:'tanggal',l:'Tanggal lain',t:'date',v:pre.tanggal||D.today},{k:'nominal',l:'Nominal (Rp)',t:'number'},{k:'ket',l:'Keterangan'}],
  (v,b)=>{if(v.dari==v.ke)return toast('Sumber asal dan tujuan harus berbeda',1);if(!num(v.nominal))return;doit('transfer',{id:id,dari:v.dari,ke:v.ke,tanggal:v.tanggal,nominal:v.nominal,ket:v.ket},b)},'<p class="sm">Transfer bukan pemasukan/pengeluaran; total saldo tidak berubah.</p>');dateWire()}
 function awalForm(srcs){srcs=srcs||D.src.filter(s=>s!='Tabungan'&&!D.awal.some(a=>a.sumber==s));
  form('Saldo Awal',srcs.map((s,i)=>({k:'a'+i,l:'Saldo '+s+' saat ini (Rp)',t:'number',v:(D.awal.find(a=>a.sumber==s)||{}).nominal})),(v,b)=>{
@@ -527,7 +557,13 @@ function korHist(x){const L=D.kor.filter(k=>!x||k.sumber==x).slice().reverse();
 PG.saldo=()=>`<div class="bar"><h2>Kelola Saldo</h2><div class="row nop" style="flex:none"><button class="b2" onclick="srcForm()">Tambah Sumber</button><button class="b2" onclick="korHist()">Riwayat Perubahan</button></div></div>
  <div class="card"><b>Dua cara memperbaiki saldo</b><p class="sm"><b>A. Koreksi saldo awal</b> — jika dulu salah mengisi saldo awal. Transaksi tetap, saldo dihitung ulang dari saldo awal yang benar.</p><p class="sm"><b>B. Cocokkan dengan uang nyata</b> — jika uang sebenarnya berbeda dengan aplikasi. Selisih dicatat sebagai transaksi Koreksi terpisah, bukan pemasukan.</p></div>
  ${D.src.map(x=>{const a=D.awal.find(z=>z.sumber==x),b=D.bal[x]||0;return `<div class="card"><div class="bar"><b><i class="dot" style="background:${srcColor(x)}"></i>${esc(x)}</b>${a?'':'<span class="tg w">Belum diatur</span>'}</div>${a?`<div class="g" style="margin:0 0 10px"><div class="c"><small>Saldo awal</small><b>${rp(a.nominal)}</b></div><div class="c"><small>Tanggal pencatatan</small><b>${a.tanggal}</b></div><div class="c"><small>Perubahan transaksi</small><b>${rp(b-a.nominal)}</b></div><div class="c"><small>Saldo aktual</small><b>${rp(b)}</b></div></div><div class="row"><button class="b" onclick="korMode('${x}')">Koreksi</button><button class="b2" onclick="korHist('${x}')">Riwayat</button></div>`:`<button class="b" onclick="awalForm(['${x}'])">Atur Saldo Awal</button>`}</div>`}).join('')}`;
-PG.kat=()=>`<div class="bar"><h2>Kategori</h2><button class="b" onclick="katForm()">Tambah Kategori</button></div>${['Pengeluaran','Pemasukan'].map(j=>`<div class="card"><b>${j}</b>${D.kat.map((k,i)=>[k,i]).filter(x=>x[0].jenis==j).map(x=>`<div class="rm" style="cursor:default"><i class="dot" style="background:${cc(x[0].nama)}"></i><span style="flex:1">${esc(x[0].nama)}${x[0].aktif=='Tidak'?' <span class="sm">(nonaktif)</span>':''}</span><button class="b2" onclick="doit('katToggle',{nama:D.kat[${x[1]}].nama,jenis:D.kat[${x[1]}].jenis},this)">${x[0].aktif=='Tidak'?'Aktifkan':'Nonaktifkan'}</button></div>`).join('')}</div>`).join('')}`;
+PG.kat=()=>{const have=new Set(D.kat.map(k=>String(k.nama).toLowerCase())),miss=REK.filter(r=>!have.has(r[0].toLowerCase())),by={};
+ D.kat.filter(k=>k.jenis=='Pengeluaran').forEach(k=>{const g=grp(k.nama);(by[g]=by[g]||[]).push(k)});
+ const row=(k,g)=>`<div class="rm" style="cursor:default"><i class="dot" style="background:${cc(k.nama)}"></i><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">${esc(k.nama)}${k.aktif=='Tidak'?' <span class="sm">(nonaktif)</span>':''}</span>${g?`<button class="b2 sq" data-n="${esc(k.nama)}" onclick="grpForm(this.dataset.n)" aria-label="Ubah kelompok">✎</button>`:''}<button class="b2" data-n="${esc(k.nama)}" data-j="${k.jenis}" onclick="doit('katToggle',{nama:this.dataset.n,jenis:this.dataset.j},this)">${k.aktif=='Tidak'?'Aktifkan':'Nonaktifkan'}</button></div>`;
+ return `<div class="bar"><h2>Kategori</h2><button class="b" onclick="katForm()">＋ Kategori</button></div>
+ ${miss.length?`<div class="card rec"><b>Rekomendasi kategori</b><p class="sm" style="margin:4px 0 8px">Ketuk untuk menambahkan. Otomatis masuk kelompok yang sesuai.</p><div class="qc">${miss.map(r=>`<button type="button" class="b2" data-n="${esc(r[0])}" onclick="addRek(this)">+ ${esc(r[0])}</button>`).join('')}</div></div>`:''}
+ ${Object.keys(by).sort().map(g=>`<div class="card"><div class="bar" style="margin:0 0 4px"><b>${esc(g)}</b><span class="sm">${by[g].length} kategori</span></div>${by[g].map(k=>row(k,1)).join('')}</div>`).join('')}
+ <div class="card"><b>Pemasukan</b>${D.kat.filter(k=>k.jenis=='Pemasukan').map(k=>row(k,0)).join('')}</div>`};
 const kmv=n=>{const m=F.km||D.today.slice(0,7),a=m.split('-'),d=new Date(+a[0],a[1]-1+n,1);F.km=fd(d).slice(0,7);F.kd=null;render()};
 const kpick=d=>{F.kd=d;render()};
 const dayT=d=>{const L=act().filter(t=>t.tanggal==d&&t.jenis!='Koreksi'&&!/^Transfer/.test(t.jenis));return{L:L,i:L.filter(t=>t.jenis=='Pemasukan'&&!UT.test(t.kategori)).reduce((s,t)=>s+t.nominal,0),o:sm(L.filter(t=>t.jenis=='Pengeluaran'&&!UT.test(t.kategori)||t.jenis=='Pengembalian'&&!UT.test(t.kategori)))}};
