@@ -179,6 +179,16 @@ svg.ch rect:nth-of-type(2n){animation-delay:.05s}svg.ch rect:nth-of-type(3n){ani
 .tm b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 #f_ket{font-size:16px;min-height:78px;resize:vertical}
 #f_nominal{font-size:24px;font-weight:700;height:56px}
+
+/* ===== v6: tanggal berhari, kelompok ===== */
+.dwrap label{margin-bottom:6px}
+.dpk{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.dc{flex:none;min-width:58px;border:1px solid var(--bd);background:var(--s2);color:var(--tx);border-radius:14px;padding:8px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;transition:transform .15s}
+.dc small{font-size:10.5px;color:var(--mu);margin:0}.dc b{font-size:17px}
+.dc.on{background:linear-gradient(135deg,#3b82f6,#6366f1);border-color:transparent;color:#fff}.dc.on small{color:#e0e7ff}
+.dtl{margin:6px 0 10px;font-weight:700;font-size:14px}
+.gh{display:flex;align-items:center;gap:10px}.gh b{flex:1}
+.gsub{display:flex;justify-content:space-between;gap:8px;padding:8px 0 8px 18px;font-size:13px;border-top:1px dashed var(--bd);cursor:pointer}
 </style></head><body>
 <div id="app"><aside id="side"></aside><main><div id="top"></div><div id="view"><div class="ld">Memuat data…</div></div></main></div>
 <nav id="bot"></nav><button id="fab" class="fabf" onclick="quick()" aria-label="Catat transaksi cepat"></button><div id="modal"></div><div id="toast"></div><div id="sy"></div>
@@ -226,6 +236,7 @@ function form(title,fs,submit,note,lbl){
  const fld=f=>f.t=='raw'?f.h
   :`<label>${f.l}${f.t=='select'?`<select id="f_${f.k}">${f.o.map(o=>`<option ${o==f.v?'selected':''}>${esc(o)}</option>`).join('')}</select>`
   :f.t=='number'?`<input id="f_${f.k}" type="text" inputmode="numeric" autocomplete="off" data-m="1" placeholder="0" value="${mf(f.v)}">`
+  :f.t=='combo'?`<input id="f_${f.k}" list="dl_${f.k}" autocomplete="off" placeholder="${esc(f.ph||'')}" value="${esc(f.v==null?'':f.v)}"><datalist id="dl_${f.k}">${f.o.map(o=>`<option value="${esc(o)}">`).join('')}</datalist>`
   :f.t=='textarea'?`<textarea id="f_${f.k}" rows="3" maxlength="300" placeholder="${esc(f.ph||'')}">${esc(f.v==null?'':f.v)}</textarea>`
   :`<input id="f_${f.k}" type="${f.t||'text'}" value="${esc(f.v==null?'':f.v)}">`}<small class="er" id="e_${f.k}"></small></label>`;
  $('modal').innerHTML=`<div class="ov"><div class="md"><h3 style="margin-top:0">${title}</h3>${note||''}${fs.map(fld).join('')}<div class="row"><button class="b2" onclick="closeM()">Batal</button><button class="b" id="fs">${lbl||'Simpan'}</button></div></div></div>`;
@@ -255,7 +266,7 @@ function chart(r){const g=(pd(r[1])-pd(r[0]))/864e5<=31?x=>x:x=>x.slice(0,7),B={
  return `<svg viewBox="0 0 600 150" class="ch">${k.map((x,i)=>`<rect x="${i*bw+bw*.1}" y="${130-h(B[x][0])}" width="${bw*.38}" height="${h(B[x][0])}" fill="#16a34a"><title>${x} masuk ${rp(B[x][0])}</title></rect><rect x="${i*bw+bw*.5}" y="${130-h(B[x][1])}" width="${bw*.38}" height="${h(B[x][1])}" fill="#e11d48"><title>${x} keluar ${rp(B[x][1])}</title></rect>`).join('')}<text x="0" y="147" font-size="10">${k[0]}</text><text x="600" y="147" font-size="10" text-anchor="end">${k[k.length-1]}</text></svg><p class="sm">🟩 Pemasukan &nbsp; 🟥 Pengeluaran</p>`}
 const ICO=[[/Parkir/,'car'],[/Futsal/,'ball'],[/Kuota|Pulsa/,'wifi'],[/Uang jajan/,'cash'],[/Kakak/,'gift'],[/Transfer/,'rep'],[/Pinjam|Utang|Piutang/,'usr'],[/Koreksi/,'gear']];
 const ico=t=>{const x=ICO.find(i=>i[0].test(t.kategori));return I(x?x[1]:(/^(Pemasukan|Pengembalian)/.test(t.jenis)?'in':'out'),20)};
-const txRow=t=>{const inn=/^(Pemasukan|Pengembalian|Transfer Masuk)$/.test(t.jenis)||(t.jenis=='Koreksi'&&t.sub!='Kurang'),col=cc(t.kategori);return `<div class="tr${t._p?' pend':''}" onclick="detail('${t.id}')" role="button" tabindex="0"><div class="ic" style="background:${col}22;color:${col}">${ico(t)}</div><div class="tm"><b>${esc(t.ket||t.kategori)}${t.status!='Aktif'?' <s>(batal)</s>':''}</b><span class="sm">${t.ket?esc(t.kategori)+' · ':''}${t.jenis} · ${t.tanggal.slice(5)} · ${esc(t.sumber)}</span></div><b style="color:var(${inn?'--g':'--r'});white-space:nowrap">${inn?'+':'−'}${rp(t.nominal)}</b></div>`};
+const txRow=t=>{const inn=/^(Pemasukan|Pengembalian|Transfer Masuk)$/.test(t.jenis)||(t.jenis=='Koreksi'&&t.sub!='Kurang'),col=cc(t.kategori);return `<div class="tr${t._p?' pend':''}" onclick="detail('${t.id}')" role="button" tabindex="0"><div class="ic" style="background:${col}22;color:${col}">${ico(t)}</div><div class="tm"><b>${esc(t.ket||t.kategori)}${t.status!='Aktif'?' <s>(batal)</s>':''}</b><span class="sm">${t.ket?esc(t.kategori)+' · ':''}${t.jenis} · ${HR[pd(t.tanggal).getDay()]} ${+t.tanggal.slice(8)}/${t.tanggal.slice(5,7)} · ${esc(t.sumber)}</span></div><b style="color:var(${inn?'--g':'--r'});white-space:nowrap">${inn?'+':'−'}${rp(t.nominal)}</b></div>`};
 const lastTx=n=>act().slice().sort((a,b)=>(b.tanggal+b.waktu).localeCompare(a.tanggal+a.waktu)).slice(0,n).map(txRow).join('')||'<p class="sm">Belum ada transaksi.</p>';
 
 /* ---------- Dashboard ---------- */
@@ -291,7 +302,7 @@ PG.dash=()=>{const miss=D.src.filter(x=>x!='Tabungan'&&!D.awal.some(a=>a.sumber=
  return `<div class="hero"><div class="bar" style="margin:0"><small>Total saldo</small><button class="hb" onclick="hideT()" aria-label="Sembunyikan nominal">${I(HID?'off':'eye',18)}</button></div><h1>${rp(tot())}</h1><div class="chips">${D.src.map(x=>`<div><small>${esc(x)}</small><b>${rp(D.bal[x]||0)}</b></div>`).join('')}</div></div>
  ${qa()}
  <div class="card"><b>Uang jajan minggu ini</b><div class="bar" style="margin:6px 0 0"><span>Terpakai ${rp(ow)} / ${rp(ang)}</span><b style="color:var(${ang-ow<0?'--r':'--g'})">Sisa ${rp(ang-ow)}</b></div>${pbar(ang>0?ow/ang:0)}<p class="sm" style="margin:6px 0 0">Aman dipakai sekitar <b>${rp(daily())}</b> per hari.</p></div>
- ${favCard()}${week7()}
+ ${favCard()}${week7()}${kemana()}
  ${RM.length?`<div class="card"><b>Pengingat</b>${RM.map(x=>`<div class="rm" onclick="${x[2]}" role="button" tabindex="0"><span>${x[0]}</span><span style="flex:1">${x[1]}</span><span class="sm">›</span></div>`).join('')}</div>`:''}
  <div class="card"><div class="bar" style="margin:0"><b>Terakhir dicatat</b><button class="b2" onclick="go('tx')">Lihat Semua</button></div>${D.tx.length?lastTx(8):empty('Belum ada transaksi','<button class="b" onclick="txForm(\'out\')">Catat Transaksi Pertama</button>')}</div>
  <button class="b2" style="width:100%;min-height:46px;margin-bottom:12px" onclick="go('an')">Lihat analisis lengkap →</button>`};
@@ -302,31 +313,62 @@ const setCat=v=>{const e=$('f_kategori');if(e&&[].some.call(e.options,o=>o.value
 const setNom=v=>{const e=$('f_nominal');if(e){e.value=mf(v);e.dataset.auto='';e.focus()}};
 const KW=[[/bensin|pertalite|pertamax|\bbbm\b/i,'Bensin'],[/parkir/i,'Parkir'],[/futsal/i,'Futsal'],[/kuota|paket data/i,'Kuota Internet'],[/pulsa/i,'Pulsa'],[/servis|service|\boli\b/i,'Servis motor'],[/sparepart|kampas|\bban\b|busi/i,'Sparepart motor'],[/\bes\b|kopi|teh|boba|susu|minum|snack|camilan|keripik|roti/i,'Minuman dan camilan'],[/makan|nasi|\bmie\b|\bmi\b|bakso|ayam|soto|gorengan|seblak|jajan/i,'Jajan dan makanan'],[/buku|pulpen|fotokopi|print|tugas|seragam/i,'Keperluan sekolah'],[/ojek|angkot|grab|gojek|transport/i,'Transportasi'],[/nongkrong|cafe|kafe/i,'Nongkrong'],[/game|film|bioskop|nonton|top ?up/i,'Hiburan']];
 const guessNom=s=>{let t=0;String(s).replace(/(\d[\d.,]*)\s*(rb|ribu|k|jt|juta)?(?![a-z0-9])/gi,(m,n,u)=>{let v;if(u)v=parseFloat(n.replace(',','.'))*(/^(jt|juta)$/i.test(u)?1e6:1e3);else v=+n.replace(/[.,]/g,'');if(v>=500)t+=v;return m});return Math.round(t)};
-function txForm(j,pre){pre=pre||{};const id=uid('TX'),inn=j=='in',cats=D.kat.filter(k=>k.aktif!='Tidak'&&k.jenis==(inn?'Pemasukan':'Pengeluaran')&&k.nama!='Uang jajan mingguan').map(k=>k.nama);
+const HR=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+const fmtLong=s=>s?pd(s).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
+function dateRaw(){let h='';for(let i=6;i>=0;i--){const d=add(D.today,-i);h+=`<button type="button" class="dc" data-d="${d}" onclick="setDate('${d}')"><small>${i==0?'Hari ini':i==1?'Kemarin':HR[pd(d).getDay()]}</small><b>${+d.slice(8)}</b></button>`}
+ return `<div class="dwrap"><label>Tanggal</label><div class="dpk">${h}</div><div id="dtl" class="dtl"></div></div>`}
+function dateSync(){const i=$('f_tanggal');if(!i)return;const v=i.value;document.querySelectorAll('.dc').forEach(b=>b.classList.toggle('on',b.dataset.d==v));const l=$('dtl');if(l)l.textContent=v?'📅 '+fmtLong(v):'Pilih tanggal'}
+const setDate=d=>{const i=$('f_tanggal');if(i){i.value=d;dateSync()}};
+function dateWire(){const i=$('f_tanggal');if(!i)return;i.addEventListener('input',dateSync);dateSync();const p=document.querySelector('.dpk');if(p)p.scrollLeft=p.scrollWidth}
+/* kelompok pengeluaran (tersimpan di HP/browser ini) */
+const GDEF={'Jajan dan makanan':'Makan & Minum','Minuman dan camilan':'Makan & Minum','Nongkrong':'Makan & Minum','Parkir':'Motor & Transportasi','Bensin':'Motor & Transportasi','Sparepart motor':'Motor & Transportasi','Servis motor':'Motor & Transportasi','Transportasi':'Motor & Transportasi','Futsal':'Hiburan & Olahraga','Hiburan':'Hiburan & Olahraga','Kuota Internet':'Pulsa & Internet','Pulsa':'Pulsa & Internet','Keperluan sekolah':'Sekolah','Kebutuhan pribadi':'Pribadi','Pengeluaran darurat':'Darurat','Pengeluaran lainnya':'Lainnya'};
+let GU={};try{GU=JSON.parse(localStorage.getItem('af_grp')||'{}')}catch(e){}if(!GU||typeof GU!='object')GU={};
+const saveGU=()=>{try{localStorage.setItem('af_grp',JSON.stringify(GU))}catch(e){}};
+const has=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
+const grp=n=>(has(GU,n)&&GU[n])||(has(GDEF,n)&&GDEF[n])||'Belum dikelompokkan';
+const allGroups=()=>[...new Set(Object.values(GDEF).concat(Object.values(GU)))].sort();
+const tkG=g=>/Motor|Pulsa|Sekolah/.test(g)?'Wajib':/Darurat/.test(g)?'Darurat':/Hiburan/.test(g)?'Keinginan':'Penting';
+function grpForm(n){const g0=grp(n);form('Pindahkan "'+esc(n)+'"',[{k:'g',l:'Kelompok',t:'combo',o:allGroups(),v:g0=='Belum dikelompokkan'?'':g0,ph:'mis. Makan & Minum'}],(v,b)=>{const g=(v.g||'').trim().slice(0,30);if(!g)return fe('g','Isi nama kelompok');GU[n]=g;saveGU();closeM();toast('Dipindah ke '+g+' ✓');render()},'<p class="sm">Semua transaksi kategori ini ikut pindah kelompok. Pengelompokan tersimpan di HP/browser ini.</p>')}
+function kelompok(){const k=F.kp||'bulan',r=rng(k),G={};
+ outv(r).forEach(t=>{const g=grp(t.kategori),o=G[g]=G[g]||{t:0,c:{}},v=t.nominal*(t.jenis=='Pengembalian'?-1:1);o.t+=v;o.c[t.kategori]=(o.c[t.kategori]||0)+v});
+ const L=Object.entries(G).filter(x=>x[1].t>0).sort((a,b)=>b[1].t-a[1].t),T0=L.reduce((s,x)=>s+x[1].t,0);
+ return seg([['minggu','Minggu ini'],['bulan','Bulan ini'],['tahun','Tahun ini']],k,'kp')+`<div class="card"><b>Uang kamu ke mana?</b><p class="sm" style="margin:4px 0 0">${plb(r)} · total ${rp(T0)}</p></div>`+
+ (L.length?L.map(x=>{const cs=Object.entries(x[1].c).filter(y=>y[1]!=0).sort((a,b)=>b[1]-a[1]);return `<div class="card"><div class="gh"><i class="dot" style="background:${cc(x[0])}"></i><b>${esc(x[0])}</b><b>${rp(x[1].t)}</b><span class="sm">${Math.round(x[1].t/T0*100)}%</span></div><div class="pb"><i style="width:${Math.round(x[1].t/T0*100)}%;background:${cc(x[0])}"></i></div>${cs.map(y=>`<div class="gsub" data-n="${esc(y[0])}" onclick="grpForm(this.dataset.n)"><span>${esc(y[0])}</span><span>${rp(y[1])} ✎</span></div>`).join('')}</div>`}).join(''):empty('Belum ada pengeluaran pada periode ini'))+'<p class="sm">Ketuk nama kategori untuk memindahkannya ke kelompok lain.</p>'}
+function kemana(){const r=rng('bulan'),G={};outv(r).forEach(t=>{const g=grp(t.kategori);G[g]=(G[g]||0)+t.nominal*(t.jenis=='Pengembalian'?-1:1)});
+ const L=Object.entries(G).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]),T0=L.reduce((s,x)=>s+x[1],0);if(!L.length)return '';
+ return `<div class="card"><div class="bar" style="margin:0 0 6px"><b>Uang bulan ini ke mana?</b><button class="b2" onclick="T.an='kelompok';go('an')">Rincian</button></div>${L.slice(0,4).map(x=>`<div class="lr" style="cursor:default"><i class="dot" style="background:${cc(x[0])}"></i><span style="flex:1">${esc(x[0])}</span><b>${rp(x[1])}</b><span class="sm" style="width:38px;text-align:right">${Math.round(x[1]/T0*100)}%</span></div>`).join('')}</div>`}
+function txForm(j,pre){pre=pre||{};const id=uid('TX'),inn=j=='in',jn=inn?'Pemasukan':'Pengeluaran',cats=D.kat.filter(k=>k.aktif!='Tidak'&&k.jenis==jn&&k.nama!='Uang jajan mingguan').map(k=>k.nama),g0=pre.kategori&&!inn?grp(pre.kategori):'';
  const chips='<div class="qc">'+[2000,5000,10000,20000,50000].map(v=>`<button type="button" class="b2" onclick="setNom(${v})">${rp(v)}</button>`).join('')+'</div>';
  form(inn?'Catat Pemasukan':'Catat Pengeluaran',[].concat(
-  [{k:'ket',l:inn?'Dari siapa / untuk apa?':'Beli apa? (ketik bebas)',t:'textarea',v:pre.ket,ph:inn?'mis. uang jajan dari kakak':'mis. nasi goreng 15000, es teh 5000, bensin 2 liter'}],
-  [{k:'nominal',l:'Total (Rp)',t:'number',v:pre.nominal},{t:'raw',h:chips},{k:'kategori',l:'Kategori',t:'select',o:cats,v:pre.kategori}],
-  inn?[{k:'jenis',l:'Jenis',t:'select',o:['Pemasukan','Pengembalian']}]:[],
-  [{k:'sumber',l:inn?'Masuk ke saldo':'Bayar pakai',t:'select',o:D.src,v:pre.sumber},{k:'tanggal',l:'Tanggal',t:'date',v:pre.tanggal||D.today}],
+  [{k:'ket',l:inn?'Dari siapa / untuk apa?':'Beli apa? (ketik bebas)',t:'textarea',v:pre.ket,ph:inn?'mis. uang jajan dari kakak':'mis. nasi goreng 15000, es teh 5000, bensin 2 liter'},
+   {k:'nominal',l:'Total (Rp)',t:'number',v:pre.nominal},{t:'raw',h:chips},
+   {k:'kategori',l:'Kategori (ketik bebas atau pilih)',t:'combo',o:cats,v:pre.kategori,ph:inn?'mis. Uang jajan':'mis. Es teh, Bensin, Buku tulis'}],
+  inn?[{k:'jenis',l:'Jenis',t:'select',o:['Pemasukan','Pengembalian']}]:[{k:'kelompok',l:'Masuk kelompok',t:'combo',o:allGroups(),v:g0=='Belum dikelompokkan'?'':g0,ph:'mis. Makan & Minum'}],
+  [{k:'sumber',l:inn?'Masuk ke saldo':'Bayar pakai',t:'select',o:D.src,v:pre.sumber},{t:'raw',h:dateRaw()},{k:'tanggal',l:'Atau pilih tanggal lain',t:'date',v:pre.tanggal||D.today}],
   D.cfg.opsional=='1'?[{k:'tempat',l:'Tempat atau penjual (opsional)',v:pre.tempat},{k:'ref',l:'No. referensi (opsional)',v:pre.ref}]:[]),
  (v,b)=>{if(!num(v.nominal))return;if(!v.tanggal)return fe('tanggal','Pilih tanggal');
-  const ket=(v.ket||'').trim().replace(/\s*\n\s*/g,' · '),tk=inn?'':((pre.tingkat&&v.kategori==pre.kategori)?pre.tingkat:tkDef(v.kategori));
-  doit('addTx',{id:id,jenis:inn?v.jenis:'Pengeluaran',tanggal:v.tanggal,nominal:v.nominal,kategori:v.kategori,sumber:v.sumber,tingkat:tk,ket:ket,tempat:v.tempat||'',ref:v.ref||''},b)},
- '<p class="sm" style="margin:0 0 8px">Kategori dan total terisi otomatis dari teks yang kamu ketik. Tetap bisa diubah.</p>');
- const k=$('f_ket'),n=$('f_nominal'),c=$('f_kategori');let ca=!pre.kategori;
- n.addEventListener('input',()=>n.dataset.auto='');c.addEventListener('change',()=>ca=false);
- k.addEventListener('input',()=>{if(!inn&&ca){const h=KW.find(x=>x[0].test(k.value));if(h)setCat(h[1])}
-  const g=guessNom(k.value);if(!n.value||n.dataset.auto=='1'){n.value=g?mf(g):'';n.dataset.auto=g?'1':''}});
- if(!pre.ket)setTimeout(()=>k.focus(),60)}
+  const kn=(v.kategori||'').trim().replace(/\s+/g,' ').slice(0,40);if(!kn)return fe('kategori','Isi kategori (ketik bebas)');
+  const ex=D.kat.find(k=>k.jenis==jn&&String(k.nama).toLowerCase()==kn.toLowerCase()),name=ex?ex.nama:kn,g=inn?'':(v.kelompok||'').trim().slice(0,30);
+  if(g){GU[name]=g;saveGU()}
+  if(!ex){Q.push({a:'katAdd',p:{jenis:jn,nama:name},opt:null});saveQ();D.kat.push({jenis:jn,nama:name,aktif:'Ya'})}
+  const ket=(v.ket||'').trim().replace(/\s*\n\s*/g,' · '),tk=inn?'':((pre.tingkat&&name==pre.kategori)?pre.tingkat:(has(GDEF,name)?tkDef(name):tkG(g||grp(name))));
+  doit('addTx',{id:id,jenis:inn?v.jenis:'Pengeluaran',tanggal:v.tanggal,nominal:v.nominal,kategori:name,sumber:v.sumber,tingkat:tk,ket:ket,tempat:v.tempat||'',ref:v.ref||''},b)},
+ '<p class="sm" style="margin:0 0 8px">Kategori dan total terisi otomatis dari teks yang kamu ketik. Kategori baru otomatis dibuat. Semua bisa diubah.</p>');
+ const k=$('f_ket'),n=$('f_nominal'),c=$('f_kategori'),gI=$('f_kelompok');let ca=!pre.kategori,ga=!(gI&&gI.value);
+ n.addEventListener('input',()=>n.dataset.auto='');
+ c.addEventListener('input',()=>{ca=false;if(gI&&ga){const gg=grp(c.value.trim());gI.value=gg=='Belum dikelompokkan'?'':gg}});
+ if(gI)gI.addEventListener('input',()=>ga=false);
+ k.addEventListener('input',()=>{if(!inn&&ca){const h=KW.find(x=>x[0].test(k.value));if(h){c.value=h[1];if(gI&&ga){const gg=grp(h[1]);gI.value=gg=='Belum dikelompokkan'?'':gg}}}
+  const gn=guessNom(k.value);if(!n.value||n.dataset.auto=='1'){n.value=gn?mf(gn):'';n.dataset.auto=gn?'1':''}});
+ dateWire();if(!pre.ket)setTimeout(()=>k.focus(),60)}
 function tfForm(pre){pre=pre||{};const id=uid('TF');
- form('Transfer Antar Saldo',[{k:'dari',l:'Dari',t:'select',o:D.src,v:pre.dari||D.src[0]},{k:'ke',l:'Ke',t:'select',o:D.src,v:pre.ke||D.src[1]},{k:'tanggal',l:'Tanggal',t:'date',v:pre.tanggal||D.today},{k:'nominal',l:'Nominal (Rp)',t:'number'},{k:'ket',l:'Keterangan'}],
- (v,b)=>{if(v.dari==v.ke)return toast('Sumber asal dan tujuan harus berbeda',1);if(!num(v.nominal))return;doit('transfer',{id:id,dari:v.dari,ke:v.ke,tanggal:v.tanggal,nominal:v.nominal,ket:v.ket},b)},'<p class="sm">Transfer bukan pemasukan/pengeluaran; total saldo tidak berubah.</p>')}
+ form('Transfer Antar Saldo',[{k:'dari',l:'Dari',t:'select',o:D.src,v:pre.dari||D.src[0]},{k:'ke',l:'Ke',t:'select',o:D.src,v:pre.ke||D.src[1]},{t:'raw',h:dateRaw()},{k:'tanggal',l:'Atau pilih tanggal lain',t:'date',v:pre.tanggal||D.today},{k:'nominal',l:'Nominal (Rp)',t:'number'},{k:'ket',l:'Keterangan'}],
+ (v,b)=>{if(v.dari==v.ke)return toast('Sumber asal dan tujuan harus berbeda',1);if(!num(v.nominal))return;doit('transfer',{id:id,dari:v.dari,ke:v.ke,tanggal:v.tanggal,nominal:v.nominal,ket:v.ket},b)},'<p class="sm">Transfer bukan pemasukan/pengeluaran; total saldo tidak berubah.</p>');dateWire()}
 function awalForm(srcs){srcs=srcs||D.src.filter(s=>s!='Tabungan'&&!D.awal.some(a=>a.sumber==s));
  form('Saldo Awal',srcs.map((s,i)=>({k:'a'+i,l:'Saldo '+s+' saat ini (Rp)',t:'number',v:(D.awal.find(a=>a.sumber==s)||{}).nominal})),(v,b)=>{
   const L=srcs.map((s,i)=>({sumber:s,nominal:v['a'+i]}));if(L.some(x=>x.nominal.trim()===''))return toast('Isi semua saldo (boleh 0)',1);doit('awal',{list:L},b)},'<p class="sm">Isi sesuai uang yang benar-benar ada sekarang.</p>')}
 function detail(id){const t=D.tx.find(x=>x.id==id);
- $('modal').innerHTML=`<div class="ov"><div class="md"><h3 style="margin-top:0">Detail Transaksi</h3><table>${[['ID',t.id],['Tanggal',t.tanggal+' '+t.waktu],['Jenis',t.jenis],['Sumber',t.sumber],['Kategori',t.kategori+(t.sub?' / '+t.sub:'')],['Nominal',rp(t.nominal)],['Keterangan',t.ket],['Kebutuhan',t.tingkat],['Tempat/penjual',t.tempat],['No. referensi',t.ref],['Status',t.status],['Dicatat',t.dicatat],['Terkait',t.terkait]].map(r=>`<tr><td>${r[0]}</td><td>${esc(r[1])}</td></tr>`).join('')}</table><div class="row" style="margin-top:10px"><button class="b2" onclick="closeM()">Tutup</button>${/^(Pemasukan|Pengeluaran)$/.test(t.jenis)?`<button class="b2" onclick="dup('${t.id}')">Duplikat</button>`:''}${t.status=='Aktif'?`<button class="b" style="background:var(--r)" onclick="cancelForm('${t.id}')">Batalkan</button>${/^(Pemasukan|Pengeluaran|Pengembalian)$/.test(t.jenis)&&!/^UT-/.test(t.terkait)&&t.kategori!='Uang jajan mingguan'?`<button class="b2" onclick="editForm('${t.id}')">Edit</button>`:''}`:''}</div></div></div>`}
+ $('modal').innerHTML=`<div class="ov"><div class="md"><h3 style="margin-top:0">Detail Transaksi</h3><table>${[['ID',t.id],['Tanggal',fmtLong(t.tanggal)+' · '+t.waktu],['Jenis',t.jenis],['Sumber',t.sumber],['Kategori',t.kategori+(t.sub?' / '+t.sub:'')],['Nominal',rp(t.nominal)],['Keterangan',t.ket],['Kebutuhan',t.tingkat],['Tempat/penjual',t.tempat],['No. referensi',t.ref],['Status',t.status],['Dicatat',t.dicatat],['Terkait',t.terkait]].map(r=>`<tr><td>${r[0]}</td><td>${esc(r[1])}</td></tr>`).join('')}</table><div class="row" style="margin-top:10px"><button class="b2" onclick="closeM()">Tutup</button>${/^(Pemasukan|Pengeluaran)$/.test(t.jenis)?`<button class="b2" onclick="dup('${t.id}')">Duplikat</button>`:''}${t.status=='Aktif'?`<button class="b" style="background:var(--r)" onclick="cancelForm('${t.id}')">Batalkan</button>${/^(Pemasukan|Pengeluaran|Pengembalian)$/.test(t.jenis)&&!/^UT-/.test(t.terkait)&&t.kategori!='Uang jajan mingguan'?`<button class="b2" onclick="editForm('${t.id}')">Edit</button>`:''}`:''}</div></div></div>`}
 function editForm(id){const t=D.tx.find(x=>x.id==id),cats=D.kat.filter(k=>k.jenis==(t.jenis=='Pengeluaran'?'Pengeluaran':'Pemasukan')).map(k=>k.nama);if(cats.indexOf(t.kategori)<0)cats.push(t.kategori);
  form('Edit Transaksi',[{k:'ket',l:'Beli apa? (ketik bebas)',t:'textarea',v:t.ket},{k:'nominal',l:'Nominal (Rp)',t:'number',v:t.nominal},{k:'kategori',l:'Kategori',t:'select',o:cats,v:t.kategori},{k:'sumber',l:'Sumber saldo',t:'select',o:D.src,v:t.sumber},{k:'tanggal',l:'Tanggal',t:'date',v:t.tanggal},{k:'tempat',l:'Tempat atau penjual (opsional)',v:t.tempat},{k:'ref',l:'No. referensi (opsional)',v:t.ref}],
  (v,b)=>{if(!num(v.nominal))return;doit('editTx',{id:id,nominal:v.nominal,kategori:v.kategori,sumber:v.sumber,tanggal:v.tanggal,ket:(v.ket||'').trim().replace(/\s*\n\s*/g,' · '),tempat:v.tempat,ref:v.ref},b)},'<p class="sm">Perubahan dicatat di riwayat perubahan dan saldo dihitung ulang dari data terbaru.</p>')}
@@ -388,7 +430,7 @@ PG.tg=()=>{const L=D.tgt.filter(x=>x.status!='Nonaktif'),sv=D.bal.Tabungan||0,al
  ${L.map(x=>`<div class="card"><div class="bar" style="margin:0"><b>${esc(x.nama)} <span class="sm">${x.prioritas}${x.tenggat?' · '+x.tenggat:''}</span></b><div class="row" style="flex:none"><button class="b2" onclick="alokForm('${x.id}')">Alokasi</button><button class="b2" onclick="tgForm('${x.id}')">Edit</button><button class="b2" onclick="doit('tgDel',{id:'${x.id}'},this)">✕</button></div></div><p class="sm" style="margin:6px 0">${rp(x.terkumpul)} / ${rp(x.target)} · sisa ${rp(Math.max(0,x.target-x.terkumpul))} · ${Math.round(x.terkumpul/x.target*100)}%</p>${pbar(x.terkumpul/x.target)}${est(x)}</div>`).join('')||'<div class="card sm">Belum ada target.</div>'}`};
 
 /* ---------- Analisis & simulasi ---------- */
-PG.an=()=>`<div class="tabs">${[['analisis','Ringkasan'],['diagram','Diagram'],['bandingkan','Bandingkan'],['simulasi','Simulasi']].map(x=>`<button class="${T.an==x[0]?'on':''}" onclick="T.an='${x[0]}';render()">${x[1]}</button>`).join('')}</div>`+(T.an=='diagram'?diagram():T.an=='bandingkan'?bandingkan():T.an=='simulasi'?simul():analisis());
+PG.an=()=>`<div class="tabs">${[['analisis','Ringkasan'],['kelompok','Kelompok'],['diagram','Diagram'],['bandingkan','Bandingkan'],['simulasi','Simulasi']].map(x=>`<button class="${T.an==x[0]?'on':''}" onclick="T.an='${x[0]}';render()">${x[1]}</button>`).join('')}</div>`+(T.an=='kelompok'?kelompok():T.an=='diagram'?diagram():T.an=='bandingkan'?bandingkan():T.an=='simulasi'?simul():analisis());
 function trend(){const W=[];for(let i=7;i>=0;i--){const r=rng('minggu',-i);W.push([r[0].slice(5),sm(outv(r))])}const mx=Math.max(1,...W.map(x=>x[1])),bw=600/W.length;
  return `<div class="card"><b>Tren pengeluaran 8 minggu</b><svg viewBox="0 0 600 160" class="ch">${W.map((x,i)=>{const h=x[1]/mx*105;return `<rect x="${i*bw+bw*.15}" y="${125-h}" width="${bw*.7}" height="${h}" rx="6" fill="${i==7?'#2563eb':'#93b4f5'}"><title>${rp(x[1])}</title></rect><text x="${i*bw+bw/2}" y="${119-h}" text-anchor="middle" font-size="12">${x[1]?Math.round(x[1]/1000)+'k':''}</text><text x="${i*bw+bw/2}" y="150" text-anchor="middle" font-size="12">${x[0]}</text>`}).join('')}</svg></div>`}
 function analisis(){if(act().length<5)return '<div class="card">Analisis membutuhkan lebih banyak catatan (minimal 5 transaksi aktif).</div>';
@@ -594,7 +636,7 @@ function pump(){
  net(j.a,j.p,()=>{Q.shift();saveQ();busy=false;fails=0;Q.length?pump():sync()},x=>{
   busy=false;
   if(x.net){fails++;setSync();setTimeout(pump,Math.min(12000,1200*fails));return} // jaringan: coba lagi dgn ID yang SAMA (server menolak dobel)
-  Q.shift();saveQ();undoOpt(j);toast(x.m,1);vib([60,40,60]);render();Q.length?pump():sync()})}
+  Q.shift();saveQ();undoOpt(j);if(j.a!='katAdd'){toast(x.m,1);vib([60,40,60])}render();Q.length?pump():sync()})}
 window.addEventListener('online',()=>{fails=0;pump()});window.addEventListener('offline',setSync);
 function sync(){syncing=true;setSync();load2(0,true)}
 function doit2(a,p,b,onerr){
