@@ -174,6 +174,11 @@ svg.ch rect:nth-of-type(2n){animation-delay:.05s}svg.ch rect:nth-of-type(3n){ani
 #sy.off{background:#dc2626}#sy.ok{background:#16a34a}
 .ib.spin svg{animation:spin .8s linear infinite}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* ===== v5: ketik bebas, daftar lebih jelas ===== */
+.tm b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#f_ket{font-size:16px;min-height:78px;resize:vertical}
+#f_nominal{font-size:24px;font-weight:700;height:56px}
 </style></head><body>
 <div id="app"><aside id="side"></aside><main><div id="top"></div><div id="view"><div class="ld">Memuat data…</div></div></main></div>
 <nav id="bot"></nav><button id="fab" class="fabf" onclick="quick()" aria-label="Catat transaksi cepat"></button><div id="modal"></div><div id="toast"></div><div id="sy"></div>
@@ -218,8 +223,13 @@ function doit(a,p,b,onerr){doit2(a,p,b,onerr)}
 
 function ask(msg,yes){$('modal').innerHTML=`<div class="ov"><div class="md"><p>${msg}</p><div class="row"><button class="b2" onclick="closeM()">Batal</button><button class="b" id="yy">Lanjutkan</button></div></div></div>`;$('yy').onclick=()=>{closeM();yes()}}
 function form(title,fs,submit,note,lbl){
- $('modal').innerHTML=`<div class="ov"><div class="md"><h3 style="margin-top:0">${title}</h3>${note||''}${fs.map(f=>`<label>${f.l}${f.t=='select'?`<select id="f_${f.k}">${f.o.map(o=>`<option ${o==f.v?'selected':''}>${esc(o)}</option>`).join('')}</select>`:`${f.t=='number'?`<input id="f_${f.k}" type="text" inputmode="numeric" autocomplete="off" data-m="1" placeholder="0" value="${mf(f.v)}">`:`<input id="f_${f.k}" type="${f.t||'text'}" value="${esc(f.v==null?'':f.v)}">`}`}<small class="er" id="e_${f.k}"></small></label>`).join('')}<div class="row"><button class="b2" onclick="closeM()">Batal</button><button class="b" id="fs">${lbl||'Simpan'}</button></div></div></div>`;
- $('fs').onclick=()=>{document.querySelectorAll('.er').forEach(e=>e.textContent='');const v={};fs.forEach(f=>{const x=$('f_'+f.k).value;v[f.k]=f.t=='number'?un(x):x});submit(v,$('fs'))}}
+ const fld=f=>f.t=='raw'?f.h
+  :`<label>${f.l}${f.t=='select'?`<select id="f_${f.k}">${f.o.map(o=>`<option ${o==f.v?'selected':''}>${esc(o)}</option>`).join('')}</select>`
+  :f.t=='number'?`<input id="f_${f.k}" type="text" inputmode="numeric" autocomplete="off" data-m="1" placeholder="0" value="${mf(f.v)}">`
+  :f.t=='textarea'?`<textarea id="f_${f.k}" rows="3" maxlength="300" placeholder="${esc(f.ph||'')}">${esc(f.v==null?'':f.v)}</textarea>`
+  :`<input id="f_${f.k}" type="${f.t||'text'}" value="${esc(f.v==null?'':f.v)}">`}<small class="er" id="e_${f.k}"></small></label>`;
+ $('modal').innerHTML=`<div class="ov"><div class="md"><h3 style="margin-top:0">${title}</h3>${note||''}${fs.map(fld).join('')}<div class="row"><button class="b2" onclick="closeM()">Batal</button><button class="b" id="fs">${lbl||'Simpan'}</button></div></div></div>`;
+ $('fs').onclick=()=>{document.querySelectorAll('.er').forEach(e=>e.textContent='');const v={};fs.filter(f=>f.t!='raw').forEach(f=>{const x=$('f_'+f.k).value;v[f.k]=f.t=='number'?un(x):x});submit(v,$('fs'))}}
 const fe=(k,m)=>{const e=$('e_'+k);if(e){e.textContent=m;const i=$('f_'+k);if(i)i.focus()}else toast(m,1)};
 const num=(v,m)=>{if(!(+v>0)){fe('nominal',(m||'Nominal')+' harus lebih dari 0');return false}return true};
 
@@ -245,7 +255,7 @@ function chart(r){const g=(pd(r[1])-pd(r[0]))/864e5<=31?x=>x:x=>x.slice(0,7),B={
  return `<svg viewBox="0 0 600 150" class="ch">${k.map((x,i)=>`<rect x="${i*bw+bw*.1}" y="${130-h(B[x][0])}" width="${bw*.38}" height="${h(B[x][0])}" fill="#16a34a"><title>${x} masuk ${rp(B[x][0])}</title></rect><rect x="${i*bw+bw*.5}" y="${130-h(B[x][1])}" width="${bw*.38}" height="${h(B[x][1])}" fill="#e11d48"><title>${x} keluar ${rp(B[x][1])}</title></rect>`).join('')}<text x="0" y="147" font-size="10">${k[0]}</text><text x="600" y="147" font-size="10" text-anchor="end">${k[k.length-1]}</text></svg><p class="sm">🟩 Pemasukan &nbsp; 🟥 Pengeluaran</p>`}
 const ICO=[[/Parkir/,'car'],[/Futsal/,'ball'],[/Kuota|Pulsa/,'wifi'],[/Uang jajan/,'cash'],[/Kakak/,'gift'],[/Transfer/,'rep'],[/Pinjam|Utang|Piutang/,'usr'],[/Koreksi/,'gear']];
 const ico=t=>{const x=ICO.find(i=>i[0].test(t.kategori));return I(x?x[1]:(/^(Pemasukan|Pengembalian)/.test(t.jenis)?'in':'out'),20)};
-const txRow=t=>{const inn=/^(Pemasukan|Pengembalian|Transfer Masuk)$/.test(t.jenis)||(t.jenis=='Koreksi'&&t.sub!='Kurang'),col=cc(t.kategori);return `<div class="tr${t._p?' pend':''}" onclick="detail('${t.id}')" role="button" tabindex="0"><div class="ic" style="background:${col}22;color:${col}">${ico(t)}</div><div class="tm"><b>${esc(t.kategori)}${t.status!='Aktif'?' <s>(batal)</s>':''}</b><span class="sm">${t.jenis} · ${t.tanggal} · ${esc(t.sumber)}${t.ket?' · '+esc(t.ket):''}</span></div><b style="color:var(${inn?'--g':'--r'});white-space:nowrap">${inn?'+':'−'}${rp(t.nominal)}</b></div>`};
+const txRow=t=>{const inn=/^(Pemasukan|Pengembalian|Transfer Masuk)$/.test(t.jenis)||(t.jenis=='Koreksi'&&t.sub!='Kurang'),col=cc(t.kategori);return `<div class="tr${t._p?' pend':''}" onclick="detail('${t.id}')" role="button" tabindex="0"><div class="ic" style="background:${col}22;color:${col}">${ico(t)}</div><div class="tm"><b>${esc(t.ket||t.kategori)}${t.status!='Aktif'?' <s>(batal)</s>':''}</b><span class="sm">${t.ket?esc(t.kategori)+' · ':''}${t.jenis} · ${t.tanggal.slice(5)} · ${esc(t.sumber)}</span></div><b style="color:var(${inn?'--g':'--r'});white-space:nowrap">${inn?'+':'−'}${rp(t.nominal)}</b></div>`};
 const lastTx=n=>act().slice().sort((a,b)=>(b.tanggal+b.waktu).localeCompare(a.tanggal+a.waktu)).slice(0,n).map(txRow).join('')||'<p class="sm">Belum ada transaksi.</p>';
 
 /* ---------- Dashboard ---------- */
@@ -253,7 +263,7 @@ const QA=[['in','Pemasukan',"txForm('in')"],['out','Pengeluaran',"txForm('out')"
 const QB=[['car','Parkir','qP()'],['ball','Futsal','qF()'],['wifi','Kuota','kuotaForm()'],['gift','Dari Kakak','qK()']];
 const qa=x=>`<div class="qa">${QA.concat(x?QB:[]).map(q=>`<button onclick="${q[2]}">${I(q[0],22)}<span>${q[1]}</span></button>`).join('')}</div>`;
 const qP=()=>txForm('out',{kategori:'Parkir',nominal:+D.cfg.parkir,tingkat:'Wajib'}),qF=()=>txForm('out',{kategori:'Futsal',nominal:+D.cfg.futsal,tingkat:'Keinginan'}),qK=()=>txForm('in',{kategori:'Uang dari Kakak'});
-function quick(pre){if(!D)return;pre=pre||{};window.QP=pre;$('modal').innerHTML=`<div class="ov" onclick="closeM()"><div class="md" onclick="event.stopPropagation()"><h3 style="margin-top:0">Catat apa?${pre.tanggal?' <small class="sm">('+pre.tanggal+')</small>':''}</h3><div class="mg" style="margin-bottom:10px"><button class="mc" style="color:var(--g)" onclick="txForm('in',QP)">${I('in',28)}<span>Pemasukan</span></button><button class="mc" style="color:var(--r)" onclick="txForm('out',QP)">${I('out',28)}<span>Pengeluaran</span></button><button class="mc" style="color:var(--n)" onclick="tfForm(QP)">${I('rep',28)}<span>Transfer saldo</span></button><button class="mc" style="color:var(--p)" onclick="tfForm(Object.assign({},QP,{ke:'Tabungan'}))">${I('pig',28)}<span>Menabung</span></button></div><button class="b2" style="width:100%;min-height:44px" onclick="closeM()">Tutup</button></div></div>`}
+function quick(pre){if(!D)return;txForm('out',pre||{})}
 const sg=t=>/^(Pemasukan|Pengembalian|Transfer Masuk)$/.test(t.jenis)?t.nominal:(t.jenis=='Pengeluaran'||t.jenis=='Transfer Keluar')?-t.nominal:t.jenis=='Koreksi'?(t.sub=='Kurang'?-t.nominal:t.nominal):0;
 function balSeries(n){const days=[];for(let i=n-1;i>=0;i--)days.push(add(D.today,-i));const T0=act(),base=D.awal.reduce((a,x)=>a+x.nominal,0)+T0.filter(t=>t.tanggal<days[0]).reduce((a,t)=>a+sg(t),0);
  return days.map(d=>[d,base+T0.filter(t=>t.tanggal>=days[0]&&t.tanggal<=d).reduce((a,t)=>a+sg(t),0)])}
@@ -276,29 +286,39 @@ function reminders(){const R=[],t=D.today,w=rng('minggu'),m=rng('bulan');
  bud().filter(x=>x.p>=.7).forEach(x=>R.push([I('cal',18),(x.p>1?'Melebihi anggaran ':x.p>=.9?'Hampir habis: ':'Mendekati batas: ')+esc(x.kategori)+' ('+x.periode.toLowerCase()+') '+rp(x.u)+'/'+rp(x.batas),"go('ang')"]));
  return R}
 PG.dash=()=>{const miss=D.src.filter(x=>x!='Tabungan'&&!D.awal.some(a=>a.sumber==x));
- if(miss.length)return `<div class="card emp">${I('wal',36)}<h3 style="color:var(--tx)">Atur saldo awal dulu</h3><p>Agar saldo yang tampil akurat, masukkan uang ${miss.join(' & ')} yang kamu miliki sekarang. Aplikasi tidak menampilkan saldo sebelum ini diisi.</p><button class="b" onclick="awalForm()">Atur Saldo Awal</button></div>`;
- const t=D.today,w=rng('minggu'),k=F.per||'bulan',r=k=='kustom'?[F.da||t,F.db||t]:rng(k),pr=prevR(k,r),cat={},pc={};
- outv(r).forEach(x=>cat[x.kategori]=(cat[x.kategori]||0)+x.nominal*(x.jenis=='Pengembalian'?-1:1));outv(pr).forEach(x=>pc[x.kategori]=(pc[x.kategori]||0)+x.nominal*(x.jenis=='Pengembalian'?-1:1));
- const ang=+D.cfg.jajan,ow=sm(outv(w)),iw=sm(inc(w)),om=sm(outv(rng('bulan'))),got=D.jaj.filter(j=>j.periode==w[0]&&j.status=='Diterima').reduce((a,j)=>a+j.nominal,0),T0=D.tgt.filter(x=>x.status!='Nonaktif'),tp=T0.length?Math.round(T0.reduce((a,x)=>a+Math.min(1,x.terkumpul/x.target),0)/T0.length*100):null,RM=reminders(),S=balSeries(30);
- return `<div class="hero"><div class="bar" style="margin:0"><small>Total saldo aktual</small><button class="hb" onclick="hideT()" aria-label="Tampilkan atau sembunyikan nominal">${I(HID?'off':'eye',18)} ${HID?'Tampilkan':'Sembunyikan'}</button></div><h1>${rp(tot())}</h1><div class="chips">${D.src.map(x=>`<div><small>${esc(x)}</small><b>${rp(D.bal[x]||0)}</b></div>`).join('')}</div><button class="hb2" onclick="go('saldo')">Kelola Saldo</button></div>
+ if(miss.length)return `<div class="card emp">${I('wal',36)}<h3 style="color:var(--tx)">Atur saldo awal dulu</h3><p>Masukkan uang ${miss.join(' & ')} yang kamu miliki sekarang.</p><button class="b" onclick="awalForm()">Atur Saldo Awal</button></div>`;
+ const w=rng('minggu'),ang=+D.cfg.jajan,ow=sm(outv(w)),RM=reminders().slice(0,3);
+ return `<div class="hero"><div class="bar" style="margin:0"><small>Total saldo</small><button class="hb" onclick="hideT()" aria-label="Sembunyikan nominal">${I(HID?'off':'eye',18)}</button></div><h1>${rp(tot())}</h1><div class="chips">${D.src.map(x=>`<div><small>${esc(x)}</small><b>${rp(D.bal[x]||0)}</b></div>`).join('')}</div></div>
  ${qa()}
- ${favCard()}
- <div class="g">${K('Pemasukan minggu ini',rp(iw),'gr')}${K('Pengeluaran minggu ini',rp(ow),'rd')}${K('Sisa anggaran minggu ini (bukan saldo)',rp(ang-ow),ang-ow<0?'rd':'')}${K('Pengeluaran bulan ini',rp(om),'rd')}${K('Sisa uang jajan yang diterima',got?rp(got-ow):'Belum dicatat')}${K('Progres target tabungan',tp==null?'Belum ada target':tp+'%','pu')}</div>
- <div class="card"><b>Uang jajan minggu ini</b><div class="bar" style="margin:6px 0 0"><span>Terpakai ${rp(ow)} / ${rp(ang)}</span><b style="color:var(${ang-ow<0?'--r':'--g'})">Sisa ${rp(ang-ow)}</b></div>${pbar(ang>0?ow/ang:0)}<p class="sm" style="margin:6px 0 0">Aman dipakai sekitar <b>${rp(daily())}</b> per hari sampai minggu ini berakhir.</p></div>
- ${week7()}${insight()}${RM.length?`<div class="card"><b>Pengingat</b>${RM.map(x=>`<div class="rm" onclick="${x[2]}" role="button" tabindex="0"><span>${x[0]}</span><span style="flex:1">${x[1]}</span><span class="sm">›</span></div>`).join('')}</div>`:''}
- <div class="card"><div class="bar" style="margin:0"><b>Periode grafik</b><select style="width:auto;margin:0" onchange="F.per=this.value;render()" aria-label="Periode">${[['hari','Hari ini'],['minggu','Minggu ini'],['bulan','Bulan ini'],['tahun','Tahun ini'],['kustom','Rentang khusus']].map(x=>`<option value="${x[0]}" ${k==x[0]?'selected':''}>${x[1]}</option>`).join('')}</select></div>${k=='kustom'?`<div class="row" style="margin-top:8px"><input type="date" value="${r[0]}" onchange="F.da=this.value;render()"><input type="date" value="${r[1]}" onchange="F.db=this.value;render()"></div>`:''}<p class="sm" style="margin:6px 0 0">${plb(r)}</p></div>
- <div class="two"><div class="card"><b>Pengeluaran per kategori</b>${donut(cat,pc,r)}</div><div class="card"><b>Pemasukan vs pengeluaran</b>${(inc(r).length+outv(r).length)?chart(r):empty('Belum ada transaksi pada periode ini')}</div></div>
- <div class="card"><div class="bar" style="margin-bottom:4px"><b>Perkembangan saldo</b><span class="sm">30 hari terakhir</span></div>${lineSvg(S.map(x=>x[1]),S.map(x=>x[0].slice(5)),'#2563eb')}</div>
- <div class="card"><div class="bar" style="margin:0"><b>Aktivitas terbaru</b><button class="b2" onclick="go('tx')">Lihat Semua</button></div>${D.tx.length?lastTx(5):empty('Belum ada transaksi','<button class="b" onclick="txForm(\'out\')">Catat Transaksi Pertama</button>')}</div>`};
+ <div class="card"><b>Uang jajan minggu ini</b><div class="bar" style="margin:6px 0 0"><span>Terpakai ${rp(ow)} / ${rp(ang)}</span><b style="color:var(${ang-ow<0?'--r':'--g'})">Sisa ${rp(ang-ow)}</b></div>${pbar(ang>0?ow/ang:0)}<p class="sm" style="margin:6px 0 0">Aman dipakai sekitar <b>${rp(daily())}</b> per hari.</p></div>
+ ${favCard()}${week7()}
+ ${RM.length?`<div class="card"><b>Pengingat</b>${RM.map(x=>`<div class="rm" onclick="${x[2]}" role="button" tabindex="0"><span>${x[0]}</span><span style="flex:1">${x[1]}</span><span class="sm">›</span></div>`).join('')}</div>`:''}
+ <div class="card"><div class="bar" style="margin:0"><b>Terakhir dicatat</b><button class="b2" onclick="go('tx')">Lihat Semua</button></div>${D.tx.length?lastTx(8):empty('Belum ada transaksi','<button class="b" onclick="txForm(\'out\')">Catat Transaksi Pertama</button>')}</div>
+ <button class="b2" style="width:100%;min-height:46px;margin-bottom:12px" onclick="go('an')">Lihat analisis lengkap →</button>`};
 
 /* ---------- Form transaksi ---------- */
 const tkDef=c=>/^(Parkir|Kuota Internet|Pulsa|Bensin|Keperluan sekolah|Transportasi)$/.test(c)?'Wajib':c=='Pengeluaran darurat'?'Darurat':/^(Futsal|Hiburan|Nongkrong)$/.test(c)?'Keinginan':'Penting';
 const setCat=v=>{const e=$('f_kategori');if(e&&[].some.call(e.options,o=>o.value==v))e.value=v};
-const setNom=v=>{const e=$('f_nominal');if(e){e.value=mf(v);e.focus()}};
+const setNom=v=>{const e=$('f_nominal');if(e){e.value=mf(v);e.dataset.auto='';e.focus()}};
+const KW=[[/bensin|pertalite|pertamax|\bbbm\b/i,'Bensin'],[/parkir/i,'Parkir'],[/futsal/i,'Futsal'],[/kuota|paket data/i,'Kuota Internet'],[/pulsa/i,'Pulsa'],[/servis|service|\boli\b/i,'Servis motor'],[/sparepart|kampas|\bban\b|busi/i,'Sparepart motor'],[/\bes\b|kopi|teh|boba|susu|minum|snack|camilan|keripik|roti/i,'Minuman dan camilan'],[/makan|nasi|\bmie\b|\bmi\b|bakso|ayam|soto|gorengan|seblak|jajan/i,'Jajan dan makanan'],[/buku|pulpen|fotokopi|print|tugas|seragam/i,'Keperluan sekolah'],[/ojek|angkot|grab|gojek|transport/i,'Transportasi'],[/nongkrong|cafe|kafe/i,'Nongkrong'],[/game|film|bioskop|nonton|top ?up/i,'Hiburan']];
+const guessNom=s=>{let t=0;String(s).replace(/(\d[\d.,]*)\s*(rb|ribu|k|jt|juta)?(?![a-z0-9])/gi,(m,n,u)=>{let v;if(u)v=parseFloat(n.replace(',','.'))*(/^(jt|juta)$/i.test(u)?1e6:1e3);else v=+n.replace(/[.,]/g,'');if(v>=500)t+=v;return m});return Math.round(t)};
 function txForm(j,pre){pre=pre||{};const id=uid('TX'),inn=j=='in',cats=D.kat.filter(k=>k.aktif!='Tidak'&&k.jenis==(inn?'Pemasukan':'Pengeluaran')&&k.nama!='Uang jajan mingguan').map(k=>k.nama);
- const nomc='<div class="qc">'+[2000,5000,10000,20000,50000].map(v=>`<button type="button" class="b2" onclick="setNom(${v})">${rp(v)}</button>`).join('')+'</div>',chips=nomc+(inn?'':'<div class="qc">'+[['Jajan','Jajan dan makanan'],['Parkir','Parkir'],['Futsal','Futsal'],['Kuota','Kuota Internet'],['Motor','Bensin']].map(x=>`<button type="button" class="b2" onclick="setCat('${x[1]}')">${x[0]}</button>`).join('')+'</div>');
- form(inn?'Tambah Pemasukan':'Tambah Pengeluaran',[].concat(inn?[{k:'jenis',l:'Jenis',t:'select',o:['Pemasukan','Pengembalian']}]:[],[{k:'nominal',l:'Nominal (Rp)',t:'number',v:pre.nominal},{k:'kategori',l:'Kategori',t:'select',o:cats,v:pre.kategori},{k:'sumber',l:inn?'Sumber saldo tujuan':'Sumber saldo',t:'select',o:D.src,v:pre.sumber},{k:'tanggal',l:'Tanggal',t:'date',v:pre.tanggal||D.today}],inn?[]:[{k:'tingkat',l:'Tingkat kebutuhan (opsional)',t:'select',o:['Otomatis','Wajib','Penting','Keinginan','Darurat'],v:pre.tingkat||'Otomatis'}],[{k:'ket',l:'Keterangan (opsional)',v:pre.ket}],D.cfg.opsional=='1'?[{k:'tempat',l:'Tempat atau penjual (opsional)',v:pre.tempat},{k:'ref',l:'No. referensi (opsional)',v:pre.ref}]:[]),
- (v,b)=>{if(!num(v.nominal))return;if(!v.tanggal)return fe('tanggal','Pilih tanggal');doit('addTx',{id:id,jenis:inn?v.jenis:'Pengeluaran',tanggal:v.tanggal,nominal:v.nominal,kategori:v.kategori,sumber:v.sumber,tingkat:inn?'':(v.tingkat=='Otomatis'?tkDef(v.kategori):v.tingkat),ket:v.ket,tempat:v.tempat||'',ref:v.ref||''},b)},chips)}
+ const chips='<div class="qc">'+[2000,5000,10000,20000,50000].map(v=>`<button type="button" class="b2" onclick="setNom(${v})">${rp(v)}</button>`).join('')+'</div>';
+ form(inn?'Catat Pemasukan':'Catat Pengeluaran',[].concat(
+  [{k:'ket',l:inn?'Dari siapa / untuk apa?':'Beli apa? (ketik bebas)',t:'textarea',v:pre.ket,ph:inn?'mis. uang jajan dari kakak':'mis. nasi goreng 15000, es teh 5000, bensin 2 liter'}],
+  [{k:'nominal',l:'Total (Rp)',t:'number',v:pre.nominal},{t:'raw',h:chips},{k:'kategori',l:'Kategori',t:'select',o:cats,v:pre.kategori}],
+  inn?[{k:'jenis',l:'Jenis',t:'select',o:['Pemasukan','Pengembalian']}]:[],
+  [{k:'sumber',l:inn?'Masuk ke saldo':'Bayar pakai',t:'select',o:D.src,v:pre.sumber},{k:'tanggal',l:'Tanggal',t:'date',v:pre.tanggal||D.today}],
+  D.cfg.opsional=='1'?[{k:'tempat',l:'Tempat atau penjual (opsional)',v:pre.tempat},{k:'ref',l:'No. referensi (opsional)',v:pre.ref}]:[]),
+ (v,b)=>{if(!num(v.nominal))return;if(!v.tanggal)return fe('tanggal','Pilih tanggal');
+  const ket=(v.ket||'').trim().replace(/\s*\n\s*/g,' · '),tk=inn?'':((pre.tingkat&&v.kategori==pre.kategori)?pre.tingkat:tkDef(v.kategori));
+  doit('addTx',{id:id,jenis:inn?v.jenis:'Pengeluaran',tanggal:v.tanggal,nominal:v.nominal,kategori:v.kategori,sumber:v.sumber,tingkat:tk,ket:ket,tempat:v.tempat||'',ref:v.ref||''},b)},
+ '<p class="sm" style="margin:0 0 8px">Kategori dan total terisi otomatis dari teks yang kamu ketik. Tetap bisa diubah.</p>');
+ const k=$('f_ket'),n=$('f_nominal'),c=$('f_kategori');let ca=!pre.kategori;
+ n.addEventListener('input',()=>n.dataset.auto='');c.addEventListener('change',()=>ca=false);
+ k.addEventListener('input',()=>{if(!inn&&ca){const h=KW.find(x=>x[0].test(k.value));if(h)setCat(h[1])}
+  const g=guessNom(k.value);if(!n.value||n.dataset.auto=='1'){n.value=g?mf(g):'';n.dataset.auto=g?'1':''}});
+ if(!pre.ket)setTimeout(()=>k.focus(),60)}
 function tfForm(pre){pre=pre||{};const id=uid('TF');
  form('Transfer Antar Saldo',[{k:'dari',l:'Dari',t:'select',o:D.src,v:pre.dari||D.src[0]},{k:'ke',l:'Ke',t:'select',o:D.src,v:pre.ke||D.src[1]},{k:'tanggal',l:'Tanggal',t:'date',v:pre.tanggal||D.today},{k:'nominal',l:'Nominal (Rp)',t:'number'},{k:'ket',l:'Keterangan'}],
  (v,b)=>{if(v.dari==v.ke)return toast('Sumber asal dan tujuan harus berbeda',1);if(!num(v.nominal))return;doit('transfer',{id:id,dari:v.dari,ke:v.ke,tanggal:v.tanggal,nominal:v.nominal,ket:v.ket},b)},'<p class="sm">Transfer bukan pemasukan/pengeluaran; total saldo tidak berubah.</p>')}
@@ -308,8 +328,8 @@ function awalForm(srcs){srcs=srcs||D.src.filter(s=>s!='Tabungan'&&!D.awal.some(a
 function detail(id){const t=D.tx.find(x=>x.id==id);
  $('modal').innerHTML=`<div class="ov"><div class="md"><h3 style="margin-top:0">Detail Transaksi</h3><table>${[['ID',t.id],['Tanggal',t.tanggal+' '+t.waktu],['Jenis',t.jenis],['Sumber',t.sumber],['Kategori',t.kategori+(t.sub?' / '+t.sub:'')],['Nominal',rp(t.nominal)],['Keterangan',t.ket],['Kebutuhan',t.tingkat],['Tempat/penjual',t.tempat],['No. referensi',t.ref],['Status',t.status],['Dicatat',t.dicatat],['Terkait',t.terkait]].map(r=>`<tr><td>${r[0]}</td><td>${esc(r[1])}</td></tr>`).join('')}</table><div class="row" style="margin-top:10px"><button class="b2" onclick="closeM()">Tutup</button>${/^(Pemasukan|Pengeluaran)$/.test(t.jenis)?`<button class="b2" onclick="dup('${t.id}')">Duplikat</button>`:''}${t.status=='Aktif'?`<button class="b" style="background:var(--r)" onclick="cancelForm('${t.id}')">Batalkan</button>${/^(Pemasukan|Pengeluaran|Pengembalian)$/.test(t.jenis)&&!/^UT-/.test(t.terkait)&&t.kategori!='Uang jajan mingguan'?`<button class="b2" onclick="editForm('${t.id}')">Edit</button>`:''}`:''}</div></div></div>`}
 function editForm(id){const t=D.tx.find(x=>x.id==id),cats=D.kat.filter(k=>k.jenis==(t.jenis=='Pengeluaran'?'Pengeluaran':'Pemasukan')).map(k=>k.nama);if(cats.indexOf(t.kategori)<0)cats.push(t.kategori);
- form('Edit Transaksi',[{k:'nominal',l:'Nominal (Rp)',t:'number',v:t.nominal},{k:'kategori',l:'Kategori',t:'select',o:cats,v:t.kategori},{k:'sumber',l:'Sumber saldo',t:'select',o:D.src,v:t.sumber},{k:'tanggal',l:'Tanggal',t:'date',v:t.tanggal},{k:'ket',l:'Keterangan',v:t.ket},{k:'tempat',l:'Tempat atau penjual (opsional)',v:t.tempat},{k:'ref',l:'No. referensi (opsional)',v:t.ref}],
- (v,b)=>{if(!num(v.nominal))return;doit('editTx',{id:id,nominal:v.nominal,kategori:v.kategori,sumber:v.sumber,tanggal:v.tanggal,ket:v.ket,tempat:v.tempat,ref:v.ref},b)},'<p class="sm">Perubahan dicatat di riwayat perubahan dan saldo dihitung ulang dari data terbaru.</p>')}
+ form('Edit Transaksi',[{k:'ket',l:'Beli apa? (ketik bebas)',t:'textarea',v:t.ket},{k:'nominal',l:'Nominal (Rp)',t:'number',v:t.nominal},{k:'kategori',l:'Kategori',t:'select',o:cats,v:t.kategori},{k:'sumber',l:'Sumber saldo',t:'select',o:D.src,v:t.sumber},{k:'tanggal',l:'Tanggal',t:'date',v:t.tanggal},{k:'tempat',l:'Tempat atau penjual (opsional)',v:t.tempat},{k:'ref',l:'No. referensi (opsional)',v:t.ref}],
+ (v,b)=>{if(!num(v.nominal))return;doit('editTx',{id:id,nominal:v.nominal,kategori:v.kategori,sumber:v.sumber,tanggal:v.tanggal,ket:(v.ket||'').trim().replace(/\s*\n\s*/g,' · '),tempat:v.tempat,ref:v.ref},b)},'<p class="sm">Perubahan dicatat di riwayat perubahan dan saldo dihitung ulang dari data terbaru.</p>')}
 function cancelForm(id){form('Batalkan Transaksi',[{k:'alasan',l:'Alasan (opsional)'}],(v,b)=>doit('cancel',{id:id,alasan:v.alasan},b),'<p class="sm">Transaksi tetap tersimpan sebagai arsip, tetapi tidak lagi memengaruhi saldo.</p>','Batalkan')}
 
 /* ---------- Transaksi ---------- */
